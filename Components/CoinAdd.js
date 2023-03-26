@@ -1,21 +1,26 @@
 import React, { useEffect, useState } from "react"
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native"
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from "react-native"
 
-import { storage } from "./HomeScreen"
+import { storage } from "./Homescreen"
 
 import { useFonts } from 'expo-font';
 
 
-const CoinAdd = ({route, navigation}) => {
+const Coinadd = ({route, navigation}) => {
 
   // Installing Roboto-Thin font.
   const [fontsLoaded] = useFonts({
-    'Roboto-Thin': require('../assets/fonts/Roboto-Thin.ttf'),
+    'Roboto-Light': require('../assets/fonts/Roboto-Light.ttf'),
+    'Roboto-Bold': require('../assets/fonts/Roboto-Bold.ttf'),
   });
 
   const [selectedCoin, setSelectedCoin] = useState('')
   const [price, setPrice] = useState('')
   const [amount, setAmount] = useState('')
+  const [image, setImage] = useState('')
+  const [name, setName] = useState('')
+  const [symbol, setSymbol] = useState('')
+  const [showPrice, setShowPrice] = useState('')
 
   const coinInfo = {
     id: selectedCoin,
@@ -40,6 +45,10 @@ const CoinAdd = ({route, navigation}) => {
         const data = await response.json()
 
         setPrice(data.market_data.current_price.usd)
+        setImage(data.image.large)
+        setName(data.name)
+        setSymbol(data.symbol)
+        setShowPrice(data.market_data.current_price.usd)
 
       } catch (error) {
         console.error('Error adding coin to database:', error);
@@ -81,22 +90,108 @@ const CoinAdd = ({route, navigation}) => {
 
   return(
     <View style={styles.container}>
-      <Text style={styles.text}>Price:</Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={handlePriceChange}
-        value={price}
-        keyboardType="numeric"
-      />
+      
+      <View style={styles.information}>
+        
+        <Image 
+          style={styles.image} 
+          source={{uri: `${image}`}}
+          />
 
-      <Text style={styles.text}>Amount:</Text>
-      <TextInput
-        style={[styles.input, styles.amountInput]}
-        onChangeText={handleAmountInput}
-        keyboardType="numeric"
-        value={amount}
-      />
+        <View style={styles.infoTexts}>
+          <Text 
+            style={{
+              fontFamily: 'Roboto-Light',
+              fontSize: 18,
+              color: '#222222',
+            }}
+          >
+            {symbol}
+          </Text>
+          
+          <Text 
+            style={{
+              fontFamily: 'Roboto-Light',
+              fontSize: 40,
+              color: '#222222'
+            }}
+          >
+            {name}
+          </Text>
+          
+          {/* to center numbers vertically */}
+          <View style={styles.currentPrice}>
+        
+            <Text 
+              style={{
+                fontFamily: 'Roboto-Light', 
+                fontSize: 18,
+            
+                color: '#222222'
+              }}
+            >
+              $
+            </Text>
 
+            <Text 
+              style={{
+                fontFamily: 'Roboto-Bold',
+                fontSize: 40,
+        
+                color: '#222222'
+              }}
+            >
+              {showPrice}
+            </Text>
+          </View>
+        </View>
+        
+      </View>
+
+      <View style={[styles.inputView, {marginTop: 30}]}>
+        
+        <Text 
+          style={{
+            fontFamily: 'Roboto-Light',
+            fontSize: 16, 
+            color: '#DDDDDD'
+        }}
+        >
+          Price
+        </Text>
+        
+        <TextInput
+          style={styles.input}
+          onChangeText={handlePriceChange}
+          value={price}
+          keyboardType="numeric"
+        />
+      
+      </View>
+
+      <View style={[styles.inputView, {marginTop: 20}]}>
+        
+        <Text
+          style={{
+            fontFamily: 'Roboto-Light',
+            fontSize: 16,
+            color: '#DDDDDD'
+          }}
+        >
+          Amount
+        </Text>
+        
+        <TextInput
+          style={styles.input}
+          onChangeText={handleAmountInput}
+          keyboardType="numeric"
+          value={amount}
+          placeholder={'Write how many you bought here'}
+          placeholderTextColor={'#DDDDDD'}
+        />
+      
+      </View>
+      
       <TouchableOpacity
         style={styles.button}
         onPress={()=>{
@@ -106,65 +201,89 @@ const CoinAdd = ({route, navigation}) => {
         }}
 
       >
-        <Text style={styles.buttonText}>Save</Text>
+        <Text 
+          style={{
+            fontFamily: 'Roboto-Bold',
+            fontSize: 14,
+            color: '#222222'
+          }}
+        >
+          Save
+        </Text>
+
       </TouchableOpacity>
+
     </View>
   )
 }
 
 const styles = StyleSheet.create({
+  
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'white',
+    backgroundColor: '#222222',
+    alignItems: 'center'
   },
-  text: {
-    fontSize: 18,
-    marginVertical: 10,
-    //
-    fontFamily: 'Roboto-Thin.ttf',
-    fontWeight: 500
-  },
-  input: {
-    width: '80%',
-    height: 50,
-    borderColor: 'gray',
-    borderWidth: 1,
-    padding: 10,
+
+  information: {
+    width: '95%',
+    height: '30%',
+    backgroundColor: '#EFE0FF',
     borderRadius: 10,
-    fontSize: 17,
-    //
-    fontFamily: 'Roboto-Thin.ttf',
-    fontWeight: 100
+    marginTop: 20,
+    alignItems: 'center',
+    flexDirection: 'row'
   },
-  amountInput: {
-    marginBottom: 20,
-    fontFamily: 'Roboto-Thin.ttf',
-    fontWeight: 100,
-    fontSize: 17,
+
+  image: {
+    width: 80,
+    height: 80,
+    borderRadius: 80,
+    marginLeft: 10
+  },
+
+  infoTexts: {
+    flex: 1,
+    justifyContent: 'center',
+    marginLeft: 20
+  },
+
+  currentPrice: {
+    width:'100%',
+    flexDirection:'row',
+    alignItems: 'center'
+  },
+
+  inputView: {
+    width: '95%',
+    height: 100,
+    backgroundColor: '#333333',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  input: {
+    width: '100%',
+    height: 40,
     padding: 10,
-    borderWidth: 1,
-    width: '80%',
-    height: 50,
-    borderWidth: 1,
-    borderColor: 'gray'
+    fontSize: 16,
+    backgroundColor: '#444444',
+    fontFamily: 'Roboto-Light.ttf',
+    color: '#DDDDDD',
+    marginTop: 10,
   },
+
   button: {
     width: '40%',
     height: 40,
-    backgroundColor: 'lightgreen',
+    backgroundColor: '#EFE0FF',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    //
-    fontFamily: 'Roboto-Thin.ttf',
-    fontWeight: 500
-  },
-});
+    marginTop: 30
+  }
 
-export default CoinAdd
+})
+
+export default Coinadd
